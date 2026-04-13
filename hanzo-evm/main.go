@@ -21,6 +21,9 @@ import (
 	_ "github.com/luxfi/precompile/secp256r1" // 0x0100 P-256 verify (EIP-7212)
 	_ "github.com/luxfi/precompile/sr25519"   // 0x0A00 Substrate SR25519 verify
 
+	// ── VRF ──────────────────────────────────────────────
+	_ "github.com/luxfi/precompile/vrf" // 0x3213 ECVRF verify (RFC 9381)
+
 	// ── Post-Quantum (FIPS 203/204/205) ──────────────────
 	_ "github.com/luxfi/precompile/mldsa"    // 0x0200..06 ML-DSA verify (Dilithium)
 	_ "github.com/luxfi/precompile/mlkem"    // 0x0200..07 ML-KEM encap/decap (Kyber)
@@ -74,11 +77,6 @@ import (
 
 	// ── Registry ─────────────────────────────────────────
 	_ "github.com/luxfi/precompile/registry" // Precompile registry + BLS12-381 curves
-
-	// ── Deprecated Umbrellas (do NOT import — use explicit packages above) ──
-	// _ "github.com/luxfi/precompile/pqcrypto"  — use mldsa + mlkem + slhdsa
-	// _ "github.com/luxfi/precompile/quantum"   — use mldsa + mlkem + slhdsa + ringtail
-	// _ "github.com/luxfi/precompile/threshold" — use cggmp21 + frost + ringtail
 )
 
 func main() {
