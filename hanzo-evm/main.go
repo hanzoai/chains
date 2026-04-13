@@ -72,16 +72,14 @@ import (
 	// ── Blob ─────────────────────────────────────────────
 	_ "github.com/luxfi/precompile/kzg4844" // 0xB002 EIP-4844 KZG commitments
 
-	// ── Attestation ──────────────────────────────────────
-	_ "github.com/luxfi/precompile/attestation" // Remote attestation (TEE)
-
 	// ── Registry ─────────────────────────────────────────
 	_ "github.com/luxfi/precompile/registry" // Precompile registry + BLS12-381 curves
 
-	// ── REMOVED (umbrellas — use explicit imports above) ──
-	// _ "github.com/luxfi/precompile/pqcrypto"  — use mldsa + mlkem + slhdsa
-	// _ "github.com/luxfi/precompile/quantum"    — use mldsa + mlkem + slhdsa + ringtail
-	// _ "github.com/luxfi/precompile/threshold"  — use cggmp21 + frost + ringtail
+	// ── REMOVED (no init/module registration — dead imports) ──
+	// _ "github.com/luxfi/precompile/attestation" — library only, no module registration
+	// _ "github.com/luxfi/precompile/pqcrypto"    — umbrella, use mldsa + mlkem + slhdsa
+	// _ "github.com/luxfi/precompile/quantum"      — umbrella, use mldsa + mlkem + slhdsa + ringtail
+	// _ "github.com/luxfi/precompile/threshold"    — umbrella, use cggmp21 + frost + ringtail
 )
 
 func main() {
