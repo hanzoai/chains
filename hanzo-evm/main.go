@@ -16,6 +16,7 @@ import (
 	"github.com/luxfi/vm/rpc"
 
 	// ── Curves ───────────────────────────────────────────
+	_ "github.com/luxfi/precompile/bls12381"  // 0x000B-0x0011 BLS12-381 (EIP-2537)
 	_ "github.com/luxfi/precompile/ed25519"   // 0x3211 Ed25519 verify
 	_ "github.com/luxfi/precompile/secp256r1" // 0x0100 P-256 verify (EIP-7212)
 	_ "github.com/luxfi/precompile/sr25519"   // 0x0A00 Substrate SR25519 verify
@@ -25,9 +26,14 @@ import (
 	_ "github.com/luxfi/precompile/mlkem"    // 0x0200..07 ML-KEM encap/decap (Kyber)
 	_ "github.com/luxfi/precompile/slhdsa"   // 0x0600..01 SLH-DSA verify (SPHINCS+)
 	_ "github.com/luxfi/precompile/ringtail" // 0x0200..0B Ringtail lattice threshold
+	_ "github.com/luxfi/precompile/xwing"    // 0x2221 X-Wing hybrid KEM (X25519+ML-KEM)
 
-	// ── Hashing ──────────────────────────────────────────
-	_ "github.com/luxfi/precompile/blake3" // 0x0500..04 Blake3 hash
+	// ── Hashing / ZK Curves ─────────────────────────────
+	_ "github.com/luxfi/precompile/babyjubjub" // 0x0500..07 Baby Jubjub (BN254 twisted Edwards)
+	_ "github.com/luxfi/precompile/blake3"     // 0x0500..04 Blake3 hash
+	_ "github.com/luxfi/precompile/pasta"      // 0x0500..08 Pallas + Vesta (Halo2)
+	_ "github.com/luxfi/precompile/pedersen"   // 0x0500..06 Pedersen commitment (BN254)
+	_ "github.com/luxfi/precompile/poseidon"   // 0x0500..05 Poseidon2 ZK-friendly hash
 
 	// ── Threshold Signatures ─────────────────────────────
 	_ "github.com/luxfi/precompile/cggmp21" // 0x0800..03 CGGMP21 ECDSA threshold
@@ -49,9 +55,13 @@ import (
 	_ "github.com/luxfi/precompile/zk" // 0x0900 Groth16 + PLONK + fflonk + Halo2
 
 	// ── Encryption / Privacy ─────────────────────────────
-	_ "github.com/luxfi/precompile/ecies" // 0x9201 ECIES encrypt/decrypt
-	_ "github.com/luxfi/precompile/hpke"  // 0x9200 Hybrid Public Key Encryption
-	_ "github.com/luxfi/precompile/ring"  // 0x9202 Ring signatures
+	_ "github.com/luxfi/precompile/aes"       // 0x9210 AES-256-GCM AEAD
+	_ "github.com/luxfi/precompile/chacha20"  // 0x9211 ChaCha20-Poly1305 AEAD
+	_ "github.com/luxfi/precompile/curve25519" // 0x9204 Edwards25519 point ops
+	_ "github.com/luxfi/precompile/ecies"     // 0x9201 ECIES encrypt/decrypt
+	_ "github.com/luxfi/precompile/hpke"      // 0x9200 Hybrid Public Key Encryption
+	_ "github.com/luxfi/precompile/ring"      // 0x9202 Ring signatures
+	_ "github.com/luxfi/precompile/x25519"    // 0x9203 X25519 Diffie-Hellman
 
 	// ── DEX (LX Suite 0x9010-0x9080) ─────────────────────
 	_ "github.com/luxfi/precompile/dex" // Pool + Oracle + Router + Hooks + Flash + Book + Vault + Price + Lend + Repayer + Liquidator + Transmuter
