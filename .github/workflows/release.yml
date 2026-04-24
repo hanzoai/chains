@@ -1,52 +1,31 @@
-name: Build VM Plugins
-
+name: Docker (VM plugins)
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, dev, test]
     tags: ['v*']
-  pull_request:
-    branches: [main]
 
-env:
-  REGISTRY: ghcr.io/hanzoai/chains
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
     strategy:
       matrix:
-        vm:
-          - evm
-          - dexvm
-          - aivm
-          - bridgevm
-          - graphvm
-          - identityvm
-          - keyvm
-          - oraclevm
-          - quantumvm
-          - relayvm
-          - servicenodevm
-          - teleportvm
-          - thresholdvm
-          - zkvm
-          - hanzo-evm
-        arch:
-          - amd64
-          - arm64
+        vm: [evm, dexvm, aivm, bridgevm, graphvm, identityvm, keyvm, oraclevm, quantumvm, relayvm, servicenodevm, teleportvm, thresholdvm, zkvm, hanzo-evm]
       fail-fast: false
-    runs-on: ${{ matrix.arch == 'arm64' && 'hanzo-arm64' || 'hanzo-amd64' }}
+    runs-on: hanzo-build-linux-amd64
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26'
-          cache-key: ${{ matrix.vm }}-${{ matrix.arch }}
-
-      - name: Build
+          cache-dependency-path: ${{ matrix.vm }}/go.sum
+      - name: Build amd64
         working-directory: ${{ matrix.vm }}
         env:
           GONOSUMCHECK: github.com/luxfi/*
@@ -55,88 +34,41 @@ jobs:
           CGO_CFLAGS: ${{ matrix.vm == 'evm' && '-O2 -D__BLST_PORTABLE__' || '' }}
         run: |
           go mod tidy
-          go build -trimpath -ldflags="-s -w" -o ../build/${{ matrix.vm }} .
-
-      - name: Test version
-        run: ./build/${{ matrix.vm }} version
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+          mkdir -p ../build/amd64
+          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../build/amd64/${{ matrix.vm }} .
+      - name: Build arm64
+        working-directory: ${{ matrix.vm }}
+        env:
+          GONOSUMCHECK: github.com/luxfi/*
+          GONOSUMDB: github.com/luxfi/*
+          CGO_ENABLED: ${{ matrix.vm == 'evm' && '1' || '0' }}
+          CGO_CFLAGS: ${{ matrix.vm == 'evm' && '-O2 -D__BLST_PORTABLE__' || '' }}
+        run: |
+          mkdir -p ../build/arm64
+          GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o ../build/arm64/${{ matrix.vm }} .
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.vm }}-linux-${{ matrix.arch }}
-          path: build/${{ matrix.vm }}
+          name: ${{ matrix.vm }}
+          path: build/
 
   docker:
     needs: build
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     strategy:
       matrix:
-        vm:
-          - evm
-          - dexvm
-          - aivm
-          - bridgevm
-          - graphvm
-          - identityvm
-          - keyvm
-          - oraclevm
-          - quantumvm
-          - relayvm
-          - servicenodevm
-          - teleportvm
-          - thresholdvm
-          - zkvm
-          - hanzo-evm
+        vm: [evm, dexvm, aivm, bridgevm, graphvm, identityvm, keyvm, oraclevm, quantumvm, relayvm, servicenodevm, teleportvm, thresholdvm, zkvm, hanzo-evm]
       fail-fast: false
-    runs-on: hanzo-amd64
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download amd64
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ matrix.vm }}-linux-amd64
-          path: build/amd64/
-
-      - name: Download arm64
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ matrix.vm }}-linux-arm64
-          path: build/arm64/
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Determine tag
-        id: tag
-        run: |
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=latest" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build and push multi-arch
-        run: |
-          chmod +x build/amd64/${{ matrix.vm }} build/arm64/${{ matrix.vm }}
-          cat > Dockerfile.plugin <<'EOF'
-          FROM scratch
-          ARG TARGETARCH
-          COPY build/${TARGETARCH}/${{ matrix.vm }} /plugin
-          ENTRYPOINT ["/plugin"]
-          EOF
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -f Dockerfile.plugin \
-            -t ${{ env.REGISTRY }}/${{ matrix.vm }}:${{ steps.tag.outputs.tag }} \
-            --push .
+    uses: hanzoai/.github/.github/workflows/docker-build.yml@main
+    with:
+      image: ghcr.io/hanzoai/chains/${{ matrix.vm }}
+      pre-build-command: |
+        gh run download ${{ github.run_id }} -n ${{ matrix.vm }} -D . || true
+        ls -la build/
+        cat > Dockerfile.plugin <<EOF
+        FROM scratch
+        ARG TARGETARCH
+        COPY build/\${TARGETARCH}/${{ matrix.vm }} /plugin
+        ENTRYPOINT ["/plugin"]
+        EOF
+      dockerfile: Dockerfile.plugin
+    secrets: inherit
