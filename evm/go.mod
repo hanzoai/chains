@@ -1,6 +1,6 @@
 module github.com/luxfi/chains/evm
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/luxfi/evm v0.8.47

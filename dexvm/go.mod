@@ -1,6 +1,6 @@
 module github.com/luxfi/chains/dexvm
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/luxfi/log v1.4.1
