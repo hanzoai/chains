@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/luxfi/log"
-	qvm "github.com/luxfi/node/vms/quantumvm"
+	qvm "github.com/luxfi/chains/quantumvm"
 	"github.com/luxfi/sys/ulimit"
 	"github.com/luxfi/vm/chain"
 	"github.com/luxfi/vm/rpc"
