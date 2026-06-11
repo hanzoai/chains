@@ -47,9 +47,6 @@ import (
 	_ "github.com/luxfi/precompile/attestation" // 0x0300..01 TEE attestation (NVTrust/SGX/SEV-SNP/TDX)
 	_ "github.com/luxfi/precompile/compute"     // 0x0300..10 AI compute marketplace
 
-	// ── Consensus (Quasar) ───────────────────────────────
-	_ "github.com/luxfi/precompile/quasar" // 0x0300..20-24 BLS + Verkle + Corona + Hybrid verify
-
 	// ── Bridge ───────────────────────────────────────────
 	_ "github.com/luxfi/precompile/bridge" // 0x0440-0443 Gateway + Router + Verifier + Liquidity
 
