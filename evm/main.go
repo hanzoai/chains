@@ -36,8 +36,10 @@ import (
 	// ── AI ────────────────────────────────────────────────
 	_ "github.com/luxfi/precompile/ai" // 0x0300 AI mining / inference
 
-	// ── Consensus (Quasar) ───────────────────────────────
-	_ "github.com/luxfi/precompile/quasar" // 0x0300..20-24 BLS + Verkle + Corona + Hybrid verify
+	// Pre-LP-4200 quasar precompiles retired — they shipped a forgeable
+	// Verkle stub (any (commitment, proof) with first-17-byte match
+	// returned 1). The canonical PQ verifiers live in the LP-4200
+	// 0x012200 block: ML-KEM/ML-DSA/SLH-DSA/Pulsar/P3Q/Corona.
 
 	// ── Bridge ───────────────────────────────────────────
 	_ "github.com/luxfi/precompile/bridge" // 0x0440-0443 Gateway + Router + Verifier + Liquidity
@@ -49,9 +51,10 @@ import (
 	_ "github.com/luxfi/precompile/zk" // 0x0900 Groth16 + PLONK + fflonk + Halo2
 
 	// ── Encryption / Privacy ─────────────────────────────
-	_ "github.com/luxfi/precompile/ecies" // 0x9201 ECIES encrypt/decrypt
-	_ "github.com/luxfi/precompile/hpke"  // 0x9200 Hybrid Public Key Encryption
-	_ "github.com/luxfi/precompile/ring"  // 0x9202 Ring signatures
+	// ECIES precompile (0x9201) retired — ECIES now lives as a crypto
+	// library (luxfi/crypto/ecies), not an on-chain precompile.
+	_ "github.com/luxfi/precompile/hpke" // 0x9200 Hybrid Public Key Encryption
+	_ "github.com/luxfi/precompile/ring" // 0x9202 Ring signatures
 
 	// ── DEX (LX Suite 0x9010-0x9080) ─────────────────────
 	_ "github.com/luxfi/precompile/dex" // Pool + Oracle + Router + Hooks + Flash + Book + Vault + Price + Lend + Repayer + Liquidator + Transmuter
