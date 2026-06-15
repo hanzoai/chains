@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/luxfi/log"
-	tvm "github.com/luxfi/node/vms/thresholdvm"
+	tvm "github.com/luxfi/chains/thresholdvm"
 	"github.com/luxfi/sys/ulimit"
 	"github.com/luxfi/vm/chain"
 	"github.com/luxfi/vm/rpc"
