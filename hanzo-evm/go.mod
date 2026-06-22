@@ -115,7 +115,7 @@ require (
 	github.com/luxfi/resource v0.0.1 // indirect
 	github.com/luxfi/runtime v1.1.1 // indirect
 	github.com/luxfi/sampler v1.1.0 // indirect
-	github.com/luxfi/threshold v1.9.9 // indirect
+	github.com/luxfi/threshold v1.9.4 // indirect
 	github.com/luxfi/timer v1.0.2 // indirect
 	github.com/luxfi/trace v1.1.0 // indirect
 	github.com/luxfi/upgrade v1.0.1 // indirect

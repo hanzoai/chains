@@ -44,6 +44,8 @@ import (
 
 	// ── AI ────────────────────────────────────────────────
 	_ "github.com/luxfi/precompile/ai"          // 0x0300 AI mining / inference
+	_ "github.com/luxfi/precompile/inference"     // 0x0300..03 deterministic int8 inference (Tier-1)
+	_ "github.com/luxfi/precompile/modelregistry" // ModelSpec registry
 	_ "github.com/luxfi/precompile/attestation" // 0x0300..01 TEE attestation (NVTrust/SGX/SEV-SNP/TDX)
 	_ "github.com/luxfi/precompile/compute"     // 0x0300..10 AI compute marketplace
 

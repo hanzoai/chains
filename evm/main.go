@@ -35,6 +35,8 @@ import (
 
 	// ── AI ────────────────────────────────────────────────
 	_ "github.com/luxfi/precompile/ai" // 0x0300 AI mining / inference
+	_ "github.com/luxfi/precompile/inference"     // 0x0300..03 deterministic int8 inference (Tier-1)
+	_ "github.com/luxfi/precompile/modelregistry" // ModelSpec registry
 
 	// Pre-LP-4200 quasar precompiles retired — they shipped a forgeable
 	// Verkle stub (any (commitment, proof) with first-17-byte match
