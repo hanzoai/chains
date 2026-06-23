@@ -52,16 +52,22 @@ func TestThinkingGovernorGoldenParity(t *testing.T) {
 // thinkingVerdictDigest builds the digest an operator SIGNS to submit a verdict to
 // the on-chain ThinkingGovernor. It mirrors the contract's _verdictDigest exactly:
 //
-//	keccak256( VERDICT_DOMAIN(32) || u256be(taskId)(32) || modelSpecHash(32) ||
-//	           vote(1) || u16be(bucket)(2) || evidenceHash(32) || operator(20) )
+//	keccak256( VERDICT_DOMAIN(32) || u256be(chainID)(32) || verifyingContract(20) ||
+//	           u256be(taskId)(32) || modelSpecHash(32) || vote(1) || u16be(bucket)(2)
+//	           || evidenceHash(32) || operator(20) )
 //
-// matching Solidity abi.encodePacked(bytes32, uint256, bytes32, uint8, uint16,
-// bytes32, address). The operator package signs this digest (raw, no EIP-191
-// prefix) with crypto.Sign; the relay normalizes v += 27 for ecrecover. The
-// CONSENSUS hash (quorum key) remains the separate keccak(spec||vote||bucket) — this
-// envelope binds the verdict to a specific task/operator/evidence without perturbing
-// quorum parity.
+// matching Solidity abi.encodePacked(bytes32, uint256, address, uint256, bytes32,
+// uint8, uint16, bytes32, address). The chainID + verifyingContract are EIP-712-style
+// domain separation: WITHOUT them a signature is byte-identical across chains and
+// across governor instances, so an operator's own re-submission could manufacture a
+// quorum it never intended on a fork/L2/CREATE2-twin. The operator package signs this
+// digest (raw, no EIP-191 prefix) with crypto.Sign; the relay normalizes v += 27 for
+// ecrecover. The CONSENSUS hash (quorum key) remains the separate
+// keccak(spec||vote||bucket) — this envelope binds the verdict to a specific
+// chain/instance/task/operator/evidence without perturbing quorum parity.
 func thinkingVerdictDigest(
+	chainID uint64,
+	verifyingContract common.Address,
 	taskID uint64,
 	operator common.Address,
 	spec common.Hash,
@@ -71,18 +77,22 @@ func thinkingVerdictDigest(
 ) common.Hash {
 	domain := crypto.Keccak256([]byte("hanzo/thinking-governor/verdict/v1"))
 
-	buf := make([]byte, 0, 32+32+32+1+2+32+20)
-	buf = append(buf, domain...)              // VERDICT_DOMAIN (bytes32)
-	var task [32]byte                         // uint256 big-endian taskId
+	buf := make([]byte, 0, 32+32+20+32+32+1+2+32+20)
+	buf = append(buf, domain...)                  // VERDICT_DOMAIN (bytes32)
+	var chain [32]byte                            // uint256 big-endian chainId
+	binary.BigEndian.PutUint64(chain[24:], chainID)
+	buf = append(buf, chain[:]...)
+	buf = append(buf, verifyingContract.Bytes()...) // address(this) (20 bytes)
+	var task [32]byte                             // uint256 big-endian taskId
 	binary.BigEndian.PutUint64(task[24:], taskID)
 	buf = append(buf, task[:]...)
-	buf = append(buf, spec.Bytes()...)        // modelSpecHash (bytes32)
-	buf = append(buf, vote)                   // vote (uint8)
-	var b2 [2]byte                            // bucket (uint16 big-endian)
+	buf = append(buf, spec.Bytes()...)            // modelSpecHash (bytes32)
+	buf = append(buf, vote)                        // vote (uint8)
+	var b2 [2]byte                                 // bucket (uint16 big-endian)
 	binary.BigEndian.PutUint16(b2[:], bucket)
 	buf = append(buf, b2[:]...)
-	buf = append(buf, evidence.Bytes()...)    // evidenceHash (bytes32)
-	buf = append(buf, operator.Bytes()...)    // operator (address, 20 bytes)
+	buf = append(buf, evidence.Bytes()...)        // evidenceHash (bytes32)
+	buf = append(buf, operator.Bytes()...)        // operator (address, 20 bytes)
 	return common.BytesToHash(crypto.Keccak256(buf))
 }
 
@@ -109,9 +119,14 @@ func TestThinkingGovernorVerdictDigestParity(t *testing.T) {
 	}
 
 	op := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	got := thinkingVerdictDigest(7, op, spec, 1, 8000, evidence)
+	// Canonical cross-language vector now binds chainId + verifyingContract
+	// (EIP-712-style domain separation): chainId = 808080 (Beluga L3),
+	// verifyingContract = 0x..beEF. The Solidity golden recomputes the same.
+	const chainID = uint64(808080)
+	vc := common.HexToAddress("0x000000000000000000000000000000000000bEEF")
+	got := thinkingVerdictDigest(chainID, vc, 7, op, spec, 1, 8000, evidence)
 
-	const wantDigest = "0x2ddbb48e0b829a7f762fb1d23757a15404e4ab64a6f95d149518bd2c59935d59"
+	const wantDigest = "0x0f86ef50ae2dd86065e9b41ec5c9a604cc8e6a8a377055a844953a90c6af78c3"
 	if got.Hex() != wantDigest {
 		t.Fatalf("verdictDigest = %s, want %s (Solidity golden)", got.Hex(), wantDigest)
 	}
