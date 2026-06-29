@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/hero.svg" alt="chains" width="880"></p>
+
 # Hanzo Chains
 
 VM plugin binaries for the Hanzo AI Network. Includes all standard Lux VMs plus Hanzo-specific chains.
