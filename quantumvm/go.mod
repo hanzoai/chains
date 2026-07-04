@@ -54,7 +54,7 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/luxfi/accel v1.1.9 // indirect
-	github.com/luxfi/age v1.5.0 // indirect
+	github.com/luxfi/age v1.5.1 // indirect
 	github.com/luxfi/api v1.0.12 // indirect
 	github.com/luxfi/atomic v1.0.0 // indirect
 	github.com/luxfi/cache v1.2.1 // indirect
