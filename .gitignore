@@ -1,2 +1,5 @@
 build/
 hanzo-evm/hanzo-evm
+
+# compiled binary (17M)
+thresholdvm/thresholdvm
