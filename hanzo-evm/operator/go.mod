@@ -13,7 +13,7 @@
 // Build/run with: GOWORK=off CGO_ENABLED=1 (and SDKROOT/CPATH on macOS).
 module github.com/hanzoai/chains/hanzo-evm/operator
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/hanzoai/chains/hanzo-evm v0.0.0-00010101000000-000000000000

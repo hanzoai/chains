@@ -1,6 +1,6 @@
 module github.com/hanzoai/chains/thresholdvm
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/luxfi/chains v1.3.6
