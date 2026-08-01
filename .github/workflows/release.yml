@@ -37,7 +37,21 @@ jobs:
           go mod tidy
           mkdir -p ../build/amd64
           GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o ../build/amd64/${{ matrix.vm }} .
+      # Skipped for evm, the only VM that needs CGO. A CGO arm64 build needs an
+      # aarch64 cross-toolchain, and the job image (catthehacker/ubuntu:act-24.04)
+      # has none, so the host x86 assembler is handed arm64 assembly:
+      #
+      #   gcc_arm64.S:59: Error: no such instruction: `ldp x27,x28,[sp,'
+      #
+      # The other 14 VMs build CGO_ENABLED=0 and cross-compile in pure Go, so
+      # they are unaffected and keep producing arm64 binaries.
+      #
+      # Not worth adding a cross-toolchain for: the estate is amd64-only. arm64
+      # has been paused since 2026-04-27 because DOKS offers no arm64 droplets
+      # (see hanzo/CLAUDE.md), so this step was failing the whole job to produce
+      # a binary nothing deploys.
       - name: Build arm64
+        if: matrix.vm != 'evm'
         working-directory: ${{ matrix.vm }}
         env:
           GONOSUMCHECK: github.com/luxfi/*
