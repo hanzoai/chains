@@ -79,6 +79,18 @@ jobs:
           name: ${{ matrix.vm }}
           path: build/
 
+  # NOT `uses:` — this forge does not expand a reusable workflow invoked from a
+  # MATRIX. Measured against a working caller: hanzoai/team calls the same
+  # reusable from a PLAIN job and the forge creates the caller stub plus the
+  # expanded jobs (build-amd64 ran, 8 steps). From this matrix it created only
+  # the 15 `docker (vm)` stubs — zero expanded jobs, steps=0 — and the log
+  # endpoint answers {"message":"job not started"}: never handed to a runner.
+  # All 15 legs failed that way on every run while the build half was green.
+  #
+  # Naming runner-amd64 explicitly did NOT help, so it is not an unapplied
+  # input default. The matrix is the trigger, so the build is inlined. Nothing
+  # of the reusable is lost here: this is a scratch image over an already-built
+  # binary, so none of its multi-arch, cache or SBOM machinery applies.
   docker:
     needs: build
     if: github.event_name != 'pull_request'
@@ -86,24 +98,41 @@ jobs:
       matrix:
         vm: [evm, dexvm, aivm, bridgevm, graphvm, identityvm, keyvm, oraclevm, quantumvm, relayvm, servicenodevm, teleportvm, thresholdvm, zkvm, hanzo-evm]
       fail-fast: false
-    uses: hanzoai/.github/.github/workflows/docker-build.yml@main
-    with:
-      image: ghcr.io/hanzoai/chains/${{ matrix.vm }}
-      # Passed explicitly rather than left to the reusable's `default:`. All 15
-      # docker jobs here fail with zero steps and a 70-byte log, while
-      # hanzoai/team — same reusable, same pool, but passing this input — runs
-      # fine. The reusable does `runs-on: ${{ fromJson(inputs.runner-amd64) }}`,
-      # so an input default that is not applied yields no labels and the job is
-      # never dispatched. Naming it removes that dependency either way.
-      runner-amd64: '["hanzo-build-linux-amd64"]'
-      pre-build-command: |
-        gh run download ${{ github.run_id }} -n ${{ matrix.vm }} -D . || true
-        ls -la build/
-        cat > Dockerfile.plugin <<EOF
-        FROM scratch
-        ARG TARGETARCH
-        COPY build/\${TARGETARCH}/${{ matrix.vm }} /plugin
-        ENTRYPOINT ["/plugin"]
-        EOF
-      dockerfile: Dockerfile.plugin
-    secrets: inherit
+    runs-on: [hanzo-build-linux-amd64]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      # v3: the forge presents as GHES and refuses download-artifact@v4+,
+      # exactly as the upload above does.
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.vm }}
+          path: build
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        run: |
+          set -euo pipefail
+          IMG="ghcr.io/hanzoai/chains/${{ matrix.vm }}"
+          # Semver-only: a v* tag publishes that version, any other push
+          # publishes an immutable sha-<sha7>. Never a floating tag.
+          case "${GITHUB_REF}" in
+            refs/tags/v*) TAG="${GITHUB_REF#refs/tags/}" ;;
+            *)            TAG="sha-$(echo "${GITHUB_SHA}" | cut -c1-7)" ;;
+          esac
+          # amd64 only: arm64 is paused estate-wide (DOKS ships no arm64), and
+          # the build job above already skips the arm64 leg for evm.
+          cp "build/amd64/${{ matrix.vm }}" plugin
+          cat > Dockerfile.plugin <<'EOF'
+          FROM scratch
+          COPY plugin /plugin
+          ENTRYPOINT ["/plugin"]
+          EOF
+          docker build -f Dockerfile.plugin -t "${IMG}:${TAG}" .
+          docker push "${IMG}:${TAG}"
+          echo "pushed ${IMG}:${TAG}"
