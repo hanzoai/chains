@@ -47,7 +47,17 @@ jobs:
         run: |
           mkdir -p ../build/arm64
           GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o ../build/arm64/${{ matrix.vm }} .
-      - uses: actions/upload-artifact@v4
+      # v3, not v4. This workflow runs on git.hanzo.ai, which presents as GHES,
+      # and the v4 action refuses outright:
+      #
+      #   GHESNotSupportedError: @actions/artifact v2.0.0+, upload-artifact@v4+
+      #   and download-artifact@v4+ are not currently supported on GHES.
+      #
+      # It is not a transient upload error — v4 moved to an artifact API the
+      # forge does not implement, so every VM in this matrix built its binary
+      # and then threw it away at the last step. Both forge-native workflows
+      # elsewhere in the estate already use v3 for the same reason.
+      - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.vm }}
           path: build/
