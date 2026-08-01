@@ -89,6 +89,13 @@ jobs:
     uses: hanzoai/.github/.github/workflows/docker-build.yml@main
     with:
       image: ghcr.io/hanzoai/chains/${{ matrix.vm }}
+      # Passed explicitly rather than left to the reusable's `default:`. All 15
+      # docker jobs here fail with zero steps and a 70-byte log, while
+      # hanzoai/team — same reusable, same pool, but passing this input — runs
+      # fine. The reusable does `runs-on: ${{ fromJson(inputs.runner-amd64) }}`,
+      # so an input default that is not applied yields no labels and the job is
+      # never dispatched. Naming it removes that dependency either way.
+      runner-amd64: '["hanzo-build-linux-amd64"]'
       pre-build-command: |
         gh run download ${{ github.run_id }} -n ${{ matrix.vm }} -D . || true
         ls -la build/
