@@ -47,17 +47,30 @@ jobs:
         run: |
           mkdir -p ../build/arm64
           GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o ../build/arm64/${{ matrix.vm }} .
-      # v3, not v4. This workflow runs on git.hanzo.ai, which presents as GHES,
-      # and the v4 action refuses outright:
+      # ⛔ Held at v4 DELIBERATELY, and neither version works. Read before changing.
       #
+      # v4 is refused by the forge, which presents as GHES:
       #   GHESNotSupportedError: @actions/artifact v2.0.0+, upload-artifact@v4+
       #   and download-artifact@v4+ are not currently supported on GHES.
+      # So no artifact is ever produced. v3 is the version that CAN work — bot
+      # has green runs on it.
       #
-      # It is not a transient upload error — v4 moved to an artifact API the
-      # forge does not implement, so every VM in this matrix built its binary
-      # and then threw it away at the last step. Both forge-native workflows
-      # elsewhere in the estate already use v3 for the same reason.
-      - uses: actions/upload-artifact@v3
+      # But switching this to v3 made things WORSE here, for a reason that has
+      # nothing to do with the version. The forge resolves actions against an
+      # empty default URL:
+      #   git clone 'https:///actions/upload-artifact'  ->  no Host in request URL
+      # so a runner can only use actions already in its local act cache. v4 is
+      # cached on these runners; v3 is not. Result: v4 fails at the LAST step
+      # with every build green, while v3 fails BEFORE any step runs and you
+      # cannot tell whether the code compiles at all.
+      #
+      # That build signal is load-bearing — it is what showed the go.sum repair
+      # in b1dae5d had worked. Keeping v4 preserves it.
+      #
+      # The real fix is on the Gitea server: [actions] DEFAULT_ACTIONS_URL must
+      # point at something real so runners can fetch actions they have not seen.
+      # Move this to v3 in the same change that fixes that, not before.
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.vm }}
           path: build/
