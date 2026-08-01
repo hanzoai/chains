@@ -47,30 +47,20 @@ jobs:
         run: |
           mkdir -p ../build/arm64
           GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o ../build/arm64/${{ matrix.vm }} .
-      # ⛔ Held at v4 DELIBERATELY, and neither version works. Read before changing.
-      #
-      # v4 is refused by the forge, which presents as GHES:
+      # v3, not v4. The forge presents as GHES and v4 refuses outright:
       #   GHESNotSupportedError: @actions/artifact v2.0.0+, upload-artifact@v4+
       #   and download-artifact@v4+ are not currently supported on GHES.
-      # So no artifact is ever produced. v3 is the version that CAN work — bot
-      # has green runs on it.
+      # So on v4 every VM in this matrix compiled its binary and then discarded
+      # it at this step, and the job reported "failed" with the build green.
       #
-      # But switching this to v3 made things WORSE here, for a reason that has
-      # nothing to do with the version. The forge resolves actions against an
-      # empty default URL:
-      #   git clone 'https:///actions/upload-artifact'  ->  no Host in request URL
-      # so a runner can only use actions already in its local act cache. v4 is
-      # cached on these runners; v3 is not. Result: v4 fails at the LAST step
-      # with every build green, while v3 fails BEFORE any step runs and you
-      # cannot tell whether the code compiles at all.
-      #
-      # That build signal is load-bearing — it is what showed the go.sum repair
-      # in b1dae5d had worked. Keeping v4 preserves it.
-      #
-      # The real fix is on the Gitea server: [actions] DEFAULT_ACTIONS_URL must
-      # point at something real so runners can fetch actions they have not seen.
-      # Move this to v3 in the same change that fixes that, not before.
-      - uses: actions/upload-artifact@v4
+      # This was briefly reverted to v4 on purpose. At the time the runners
+      # could not FETCH an uncached action at all — they resolved every `uses:`
+      # against an empty host — so switching to an uncached v3 made the job die
+      # before any step ran, destroying the build signal. That is fixed:
+      # git-runner 0.6.1-hanzo.4972baa falls back to https://github.com instead
+      # of "", verified with 0 cached actions on the runners and 7/0
+      # success/failure after the roll. v3 can now be fetched on demand.
+      - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.vm }}
           path: build/
