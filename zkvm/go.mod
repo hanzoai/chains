@@ -46,7 +46,7 @@ require (
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/luxfi/accel v1.0.6 // indirect
+	github.com/luxfi/accel v1.0.7 // indirect
 	github.com/luxfi/age v1.4.0 // indirect
 	github.com/luxfi/api v1.0.4 // indirect
 	github.com/luxfi/atomic v1.0.0 // indirect
@@ -57,7 +57,7 @@ require (
 	github.com/luxfi/consensus v1.22.80 // indirect
 	github.com/luxfi/constants v1.4.7 // indirect
 	github.com/luxfi/container v0.0.4 // indirect
-	github.com/luxfi/crypto v1.17.55 // indirect
+	github.com/luxfi/crypto v1.18.0 // indirect
 	github.com/luxfi/database v1.17.47 // indirect
 	github.com/luxfi/filesystem v0.0.1 // indirect
 	github.com/luxfi/geth v1.16.76 // indirect
