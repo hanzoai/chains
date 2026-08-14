@@ -16,7 +16,7 @@ jobs:
       matrix:
         vm: [evm, dexvm, aivm, bridgevm, graphvm, identityvm, keyvm, oraclevm, quantumvm, relayvm, servicenodevm, teleportvm, thresholdvm, zkvm, hanzo-evm]
       fail-fast: false
-    runs-on: [self-hosted, linux, amd64]
+    runs-on: hanzo-build-linux-amd64
     permissions:
       contents: read
       packages: write
