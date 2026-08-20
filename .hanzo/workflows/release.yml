@@ -29,8 +29,6 @@ jobs:
       - name: Build amd64
         working-directory: ${{ matrix.vm }}
         env:
-          GONOSUMCHECK: github.com/luxfi/*
-          GONOSUMDB: github.com/luxfi/*
           CGO_ENABLED: ${{ matrix.vm == 'evm' && '1' || '0' }}
           CGO_CFLAGS: ${{ matrix.vm == 'evm' && '-O2 -D__BLST_PORTABLE__' || '' }}
         run: |
@@ -54,8 +52,6 @@ jobs:
         if: matrix.vm != 'evm'
         working-directory: ${{ matrix.vm }}
         env:
-          GONOSUMCHECK: github.com/luxfi/*
-          GONOSUMDB: github.com/luxfi/*
           CGO_ENABLED: ${{ matrix.vm == 'evm' && '1' || '0' }}
           CGO_CFLAGS: ${{ matrix.vm == 'evm' && '-O2 -D__BLST_PORTABLE__' || '' }}
         run: |
