@@ -1,6 +1,6 @@
 module github.com/hanzoai/chains/hanzo-evm
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/luxfi/evm v1.99.21
