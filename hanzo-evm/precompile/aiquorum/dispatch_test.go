@@ -307,7 +307,7 @@ func TestLifecycleThroughDispatch(t *testing.T) {
 
 	// Register 7 operators via Run (N=5 + RED-A margin 2). The beacon picks 5 of 7.
 	const nOps = 7
-	for i := 0; i < nOps; i++ {
+	for i := range nOps {
 		op := opAddr(i)
 		as.db.balance[op] = tokens(5)
 		_, _, err := run(t, as, op, encRegister(tokens(2), spec1, common.HexToHash("0xee")), 1_000_000, false)
@@ -324,7 +324,7 @@ func TestLifecycleThroughDispatch(t *testing.T) {
 
 	// Enumerate the selected operators via isSelected over all 7; exactly N=5 hit.
 	selected := make([]common.Address, 0, 5)
-	for i := 0; i < nOps; i++ {
+	for i := range nOps {
 		op := opAddr(i)
 		ret, _, err := run(t, as, requester, append(append(selBytes(SelectorIsSelected), jobID.Bytes()...), addrWord(op)...), 1_000_000, false)
 		require.NoError(t, err)
@@ -342,7 +342,7 @@ func TestLifecycleThroughDispatch(t *testing.T) {
 	// Commit window: all 5 commit. 0,1,2 commit the answer; 3,4 commit dissent.
 	as.advance(105) // inside commit window [100, 100+CommitBlocks]
 	nonces := make([]common.Hash, 5)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		nonces[i] = common.BigToHash(big.NewInt(int64(7000 + i)))
 		out := answer
 		if i >= 3 {
@@ -355,7 +355,7 @@ func TestLifecycleThroughDispatch(t *testing.T) {
 
 	// Reveal window: only 0,1,2 reveal (the agreeing majority). 3,4 withhold.
 	as.advance(100 + CommitBlocks + 5) // inside reveal window
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		_, _, err := run(t, as, selected[i], encReveal(jobID, answer, embed, nonces[i]), 1_000_000, false)
 		require.NoError(t, err, "reveal op %d", i)
 	}
@@ -375,7 +375,7 @@ func TestLifecycleThroughDispatch(t *testing.T) {
 	require.Equal(t, answer, common.BytesToHash(ret))
 
 	// Winners withdraw rewards via Run; each receives >= reward.
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		before := as.db.GetBalance(selected[i]).Uint64()
 		ret, _, err := run(t, as, selected[i], selBytes(SelectorWithdrawRewards), 1_000_000, false)
 		require.NoError(t, err)

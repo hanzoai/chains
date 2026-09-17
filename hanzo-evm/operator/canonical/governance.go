@@ -141,10 +141,7 @@ type Decision struct {
 // coarser grid reduces the cliff frequency at the cost of resolution. The vote
 // (categorical) carries the primary signal; confidence is secondary.
 func (d Decision) BucketBps() uint16 {
-	bps := d.ConfidenceBps
-	if bps > MaxConfidenceBps {
-		bps = MaxConfidenceBps
-	}
+	bps := min(d.ConfidenceBps, MaxConfidenceBps)
 	const g = ConfidenceGridBps
 	q := bps / g // floor bucket index
 	r := bps % g // remainder within the bucket
@@ -160,10 +157,7 @@ func (d Decision) BucketBps() uint16 {
 			idx = uint32(q) + 1
 		}
 	}
-	snapped := idx * g
-	if snapped > MaxConfidenceBps {
-		snapped = MaxConfidenceBps
-	}
+	snapped := min(idx*g, MaxConfidenceBps)
 	return uint16(snapped)
 }
 

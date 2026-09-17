@@ -160,7 +160,7 @@ func tokens(n uint64) *uint256.Int {
 func registerN(t *testing.T, db *mockStateDB, lg Ledger, spec common.Hash, count int, stake *uint256.Int) []common.Address {
 	t.Helper()
 	ops := make([]common.Address, count)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		op := opAddr(i)
 		ops[i] = op
 		db.balance[op] = new(uint256.Int).Add(stake, tokens(1)) // stake + spare
@@ -375,7 +375,7 @@ func reproduceSelection(t *testing.T, db StateDB, jobID, spec common.Hash, n uin
 	t.Helper()
 	total := modelCount(db, spec)
 	eligible := make([]common.Address, 0, total)
-	for i := uint32(0); i < total; i++ {
+	for i := range total {
 		op := modelMember(db, spec, i)
 		exists, unbonding, stake, _, _ := GetOperator(db, op)
 		if !exists || unbonding || stake.Lt(MinStake) {
@@ -383,7 +383,7 @@ func reproduceSelection(t *testing.T, db StateDB, jobID, spec common.Hash, n uin
 		}
 		eligible = append(eligible, op)
 	}
-	for i := uint32(0); i < n; i++ {
+	for i := range n {
 		span := uint64(len(eligible)) - uint64(i)
 		var ib [4]byte
 		binary.BigEndian.PutUint32(ib[:], i)
@@ -479,7 +479,7 @@ func TestSettleZeroRevealsFailsAndSlashesAll(t *testing.T) {
 	jobID, sel := setupJob(t, db, lg, 5, 5, 3, tokens(1), 10)
 
 	// All 5 commit, none reveal.
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		nonce := common.BigToHash(big.NewInt(int64(700 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], common.HexToHash("0x0a55"), common.HexToHash("0x0e3b"), nonce, 12))
 	}
@@ -543,7 +543,7 @@ func setupJob(t *testing.T, db *mockStateDB, lg Ledger, nOps int, n, threshold u
 	require.NoError(t, err)
 	// Enumerate the selected set from the on-chain sel-list.
 	sel := make([]common.Address, n)
-	for i := uint32(0); i < n; i++ {
+	for i := range n {
 		sel[i] = SelectedAt(db, jobID, i)
 		require.True(t, IsSelected(db, jobID, sel[i]))
 	}
@@ -578,7 +578,7 @@ func TestCommitOnlySelected(t *testing.T) {
 
 	// Find an operator NOT selected.
 	var outsider common.Address
-	for i := 0; i < 6; i++ {
+	for i := range 6 {
 		op := opAddr(i)
 		if !IsSelected(db, jobID, op) {
 			outsider = op
@@ -694,7 +694,7 @@ func TestHappyPathQuorumSettles(t *testing.T) {
 	// Each uses a distinct nonce (commit is operator+nonce bound).
 	commitBlock := uint64(12)
 	revealBlock := 10 + CommitBlocks + 1
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		nonce := common.BigToHash(big.NewInt(int64(100 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], canonicalOut, embed, nonce, commitBlock))
 	}
@@ -703,7 +703,7 @@ func TestHappyPathQuorumSettles(t *testing.T) {
 		nonce := common.BigToHash(big.NewInt(int64(100 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], common.HexToHash("0x0d15"), embed, nonce, commitBlock))
 	}
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		nonce := common.BigToHash(big.NewInt(int64(100 + i)))
 		require.NoError(t, RevealResponse(db, jobID, sel[i], canonicalOut, embed, nonce, revealBlock))
 	}
@@ -721,7 +721,7 @@ func TestHappyPathQuorumSettles(t *testing.T) {
 	require.Equal(t, JobSettled, GetJob(db, jobID).Status)
 
 	// 3 winners each got >= rewardPerOperator credit (reward + slashed-pool share).
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		require.GreaterOrEqual(t, GetCredit(db, sel[i]).Uint64(), tokens(1).Uint64(),
 			"winner %d must be paid at least the reward", i)
 	}
@@ -753,7 +753,7 @@ func TestNoQuorumFailsAndRefunds(t *testing.T) {
 	revealBlock := 10 + CommitBlocks + 1
 
 	// 5 operators reveal 5 DIFFERENT hashes → no group reaches threshold 3.
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		nonce := common.BigToHash(big.NewInt(int64(200 + i)))
 		out := common.BigToHash(big.NewInt(int64(900 + i))) // all distinct
 		require.NoError(t, commitFor(t, db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, commitBlock))
@@ -794,7 +794,7 @@ func TestNoQuorumSlashesWithholdersCompensatesRequester(t *testing.T) {
 	revealBlock := 10 + CommitBlocks + 1
 
 	// 2 operators reveal distinct hashes (no quorum); 3 commit but withhold.
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		nonce := common.BigToHash(big.NewInt(int64(300 + i)))
 		out := common.BigToHash(big.NewInt(int64(800 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, commitBlock))
@@ -836,7 +836,7 @@ func TestSettleIdempotentReplayRejected(t *testing.T) {
 	lg := newLedger(db)
 	jobID, sel := setupJob(t, db, lg, 5, 5, 3, tokens(1), 10)
 	out := common.HexToHash("0x0a55")
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		nonce := common.BigToHash(big.NewInt(int64(400 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, 12))
 		require.NoError(t, RevealResponse(db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, 10+CommitBlocks+1))
@@ -869,7 +869,7 @@ func TestWithdrawRewards(t *testing.T) {
 	lg := newLedger(db)
 	jobID, sel := setupJob(t, db, lg, 5, 5, 3, tokens(1), 10)
 	out := common.HexToHash("0x0a55")
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		nonce := common.BigToHash(big.NewInt(int64(500 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, 12))
 		require.NoError(t, RevealResponse(db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, 10+CommitBlocks+1))
@@ -911,7 +911,7 @@ func TestValueConservationFullLifecycle(t *testing.T) {
 	fund(db, requester, tokens(1000))
 
 	allAccounts := []common.Address{requester, ContractAddress, BurnAddress}
-	for i := 0; i < nOps; i++ {
+	for i := range nOps {
 		allAccounts = append(allAccounts, opAddr(i))
 	}
 	total := func() *uint256.Int {
@@ -928,12 +928,12 @@ func TestValueConservationFullLifecycle(t *testing.T) {
 	require.Equal(t, want.Uint64(), total().Uint64(), "escrow pull conserves value")
 
 	sel := make([]common.Address, 5)
-	for i := uint32(0); i < 5; i++ {
+	for i := range uint32(5) {
 		sel[i] = SelectedAt(db, jobID, i)
 	}
 
 	out := common.HexToHash("0x0a5e")
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		nonce := common.BigToHash(big.NewInt(int64(600 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, 12))
 	}
@@ -941,7 +941,7 @@ func TestValueConservationFullLifecycle(t *testing.T) {
 		nonce := common.BigToHash(big.NewInt(int64(600 + i)))
 		require.NoError(t, commitFor(t, db, jobID, sel[i], common.HexToHash("0x0e0f"), common.HexToHash("0xE"), nonce, 12))
 	}
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		nonce := common.BigToHash(big.NewInt(int64(600 + i)))
 		require.NoError(t, RevealResponse(db, jobID, sel[i], out, common.HexToHash("0xE"), nonce, 10+CommitBlocks+1))
 	}
@@ -964,7 +964,7 @@ func TestValueConservationFullLifecycle(t *testing.T) {
 		}
 		accounted.Add(accounted, GetCredit(db, a))
 	}
-	for i := 0; i < nOps; i++ {
+	for i := range nOps {
 		_, _, stake, _, _ := GetOperator(db, opAddr(i))
 		accounted.Add(accounted, stake)
 	}
@@ -972,7 +972,7 @@ func TestValueConservationFullLifecycle(t *testing.T) {
 		"escrow == sum(bonded stake) + sum(unwithdrawn credit) after settle")
 
 	// Everyone withdraws rewards; total still conserved.
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		if GetCredit(db, sel[i]).Sign() > 0 {
 			_, err := WithdrawRewards(db, lg, sel[i])
 			require.NoError(t, err)

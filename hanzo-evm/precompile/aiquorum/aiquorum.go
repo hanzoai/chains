@@ -208,32 +208,32 @@ var ContractAddress = common.HexToAddress("0x03000000000000000000000000000000000
 // State-slot namespaces. Distinct prefixes guarantee the keccak256 keyspaces of
 // different record kinds never collide.
 var (
-	nsOperator    = []byte("aiq/op")        // operator registry record
-	nsModelIndex  = []byte("aiq/mspec.idx") // per-ModelSpec operator-array length
-	nsModelMember = []byte("aiq/mspec.mem") // per-ModelSpec operator-array element
-	nsModelSeen   = []byte("aiq/mspec.seen")// per-(ModelSpec,operator) array-membership flag
-	nsCredit      = []byte("aiq/cred")      // operator withdrawable credit ledger
-	nsReqNonce    = []byte("aiq/req.nonce") // requester monotonic nonce
-	nsJob         = []byte("aiq/job")       // job record (status + params)  *** also job_id domain
-	nsJobReward   = []byte("aiq/job.reward")// job rewardPerOperator (uint256)
-	nsJobEscrow   = []byte("aiq/job.escrow")// job remaining escrow (uint256)
-	nsSelected    = []byte("aiq/sel")       // per-(job,operator) selection flag
-	nsSelList     = []byte("aiq/sel.list")  // per-job selected-operator-array element
-	nsCommit      = []byte("aiq/commit")    // per-(job,operator) commit hash
-	nsReveal      = []byte("aiq/reveal")    // per-(job,operator) revealed output_hash
-	nsRevealFlag  = []byte("aiq/reveal.f")  // per-(job,operator) revealed flag
-	nsRevealList  = []byte("aiq/reveal.list")// per-job revealer-array element
-	nsRevealCount = []byte("aiq/reveal.cnt")// per-job revealer count
-	nsSettled     = []byte("aiq/settled")   // per-job settled marker (replay guard)
-	nsCanonical   = []byte("aiq/canon")     // per-job canonical output_hash
+	nsOperator    = []byte("aiq/op")          // operator registry record
+	nsModelIndex  = []byte("aiq/mspec.idx")   // per-ModelSpec operator-array length
+	nsModelMember = []byte("aiq/mspec.mem")   // per-ModelSpec operator-array element
+	nsModelSeen   = []byte("aiq/mspec.seen")  // per-(ModelSpec,operator) array-membership flag
+	nsCredit      = []byte("aiq/cred")        // operator withdrawable credit ledger
+	nsReqNonce    = []byte("aiq/req.nonce")   // requester monotonic nonce
+	nsJob         = []byte("aiq/job")         // job record (status + params)  *** also job_id domain
+	nsJobReward   = []byte("aiq/job.reward")  // job rewardPerOperator (uint256)
+	nsJobEscrow   = []byte("aiq/job.escrow")  // job remaining escrow (uint256)
+	nsSelected    = []byte("aiq/sel")         // per-(job,operator) selection flag
+	nsSelList     = []byte("aiq/sel.list")    // per-job selected-operator-array element
+	nsCommit      = []byte("aiq/commit")      // per-(job,operator) commit hash
+	nsReveal      = []byte("aiq/reveal")      // per-(job,operator) revealed output_hash
+	nsRevealFlag  = []byte("aiq/reveal.f")    // per-(job,operator) revealed flag
+	nsRevealList  = []byte("aiq/reveal.list") // per-job revealer-array element
+	nsRevealCount = []byte("aiq/reveal.cnt")  // per-job revealer count
+	nsSettled     = []byte("aiq/settled")     // per-job settled marker (replay guard)
+	nsCanonical   = []byte("aiq/canon")       // per-job canonical output_hash
 )
 
 // Job lifecycle states (stored in the job record's status byte).
 const (
-	JobNone      uint8 = 0 // zero value: no such job
+	JobNone       uint8 = 0 // zero value: no such job
 	JobCommitting uint8 = 1 // open for commits
-	JobSettled   uint8 = 2 // quorum reached, winners paid
-	JobFailed    uint8 = 3 // no quorum, requester refunded
+	JobSettled    uint8 = 2 // quorum reached, winners paid
+	JobFailed     uint8 = 3 // no quorum, requester refunded
 )
 
 // Operator registry flags.
@@ -330,39 +330,39 @@ var (
 
 // Errors. All are returned to the EVM as call failures (revert).
 var (
-	ErrEmptyModelSpec    = errors.New("aiquorum: empty model spec hash")
-	ErrEmptyPromptHash   = errors.New("aiquorum: empty prompt hash")
-	ErrStringTooLong     = errors.New("aiquorum: model spec string too long")
-	ErrStakeBelowMin     = errors.New("aiquorum: stake below MinStake")
-	ErrOperatorExists    = errors.New("aiquorum: operator already registered")
-	ErrOperatorUnknown   = errors.New("aiquorum: operator not registered")
-	ErrOperatorUnbonding = errors.New("aiquorum: operator is unbonding")
-	ErrCooldownActive    = errors.New("aiquorum: unbond cooldown not elapsed")
-	ErrInsufficientFunds = errors.New("aiquorum: insufficient balance")
-	ErrEscrowUnderflow   = errors.New("aiquorum: escrow underflow (invariant broken)")
-	ErrStakeOverflow     = errors.New("aiquorum: stake overflow")
-	ErrCreditOverflow    = errors.New("aiquorum: credit overflow")
-	ErrRewardOverflow    = errors.New("aiquorum: reward escrow overflow")
-	ErrNoCredit          = errors.New("aiquorum: no credit to withdraw")
-	ErrBadN              = errors.New("aiquorum: N out of range [minN, maxN]")
-	ErrBadThreshold      = errors.New("aiquorum: threshold must satisfy floor(N/2)+1 <= threshold <= N")
-	ErrNotEnoughEligible = errors.New("aiquorum: fewer eligible operators than N")
+	ErrEmptyModelSpec      = errors.New("aiquorum: empty model spec hash")
+	ErrEmptyPromptHash     = errors.New("aiquorum: empty prompt hash")
+	ErrStringTooLong       = errors.New("aiquorum: model spec string too long")
+	ErrStakeBelowMin       = errors.New("aiquorum: stake below MinStake")
+	ErrOperatorExists      = errors.New("aiquorum: operator already registered")
+	ErrOperatorUnknown     = errors.New("aiquorum: operator not registered")
+	ErrOperatorUnbonding   = errors.New("aiquorum: operator is unbonding")
+	ErrCooldownActive      = errors.New("aiquorum: unbond cooldown not elapsed")
+	ErrInsufficientFunds   = errors.New("aiquorum: insufficient balance")
+	ErrEscrowUnderflow     = errors.New("aiquorum: escrow underflow (invariant broken)")
+	ErrStakeOverflow       = errors.New("aiquorum: stake overflow")
+	ErrCreditOverflow      = errors.New("aiquorum: credit overflow")
+	ErrRewardOverflow      = errors.New("aiquorum: reward escrow overflow")
+	ErrNoCredit            = errors.New("aiquorum: no credit to withdraw")
+	ErrBadN                = errors.New("aiquorum: N out of range [minN, maxN]")
+	ErrBadThreshold        = errors.New("aiquorum: threshold must satisfy floor(N/2)+1 <= threshold <= N")
+	ErrNotEnoughEligible   = errors.New("aiquorum: fewer eligible operators than N")
 	ErrEligibleBelowMargin = errors.New("aiquorum: eligible operator set below N + required margin (RED-A anti-grind)")
-	ErrFeeOverflow       = errors.New("aiquorum: request fee overflow")
-	ErrJobUnknown        = errors.New("aiquorum: job not found")
-	ErrJobNotCommitting  = errors.New("aiquorum: job not in committing state")
-	ErrJobAlreadySettled = errors.New("aiquorum: job already settled")
-	ErrNotSelected       = errors.New("aiquorum: operator not selected for job")
-	ErrCommitClosed      = errors.New("aiquorum: commit window closed")
-	ErrAlreadyCommitted  = errors.New("aiquorum: operator already committed")
-	ErrNotCommitted      = errors.New("aiquorum: operator did not commit")
-	ErrRevealNotOpen     = errors.New("aiquorum: reveal window not open")
-	ErrRevealClosed      = errors.New("aiquorum: reveal window closed")
-	ErrAlreadyRevealed   = errors.New("aiquorum: operator already revealed")
-	ErrCommitMismatch    = errors.New("aiquorum: reveal does not match commit")
-	ErrEmptyCommit       = errors.New("aiquorum: empty commit hash")
-	ErrEmptyOutputHash   = errors.New("aiquorum: empty output hash")
-	ErrSettleTooEarly    = errors.New("aiquorum: reveal window not closed")
+	ErrFeeOverflow         = errors.New("aiquorum: request fee overflow")
+	ErrJobUnknown          = errors.New("aiquorum: job not found")
+	ErrJobNotCommitting    = errors.New("aiquorum: job not in committing state")
+	ErrJobAlreadySettled   = errors.New("aiquorum: job already settled")
+	ErrNotSelected         = errors.New("aiquorum: operator not selected for job")
+	ErrCommitClosed        = errors.New("aiquorum: commit window closed")
+	ErrAlreadyCommitted    = errors.New("aiquorum: operator already committed")
+	ErrNotCommitted        = errors.New("aiquorum: operator did not commit")
+	ErrRevealNotOpen       = errors.New("aiquorum: reveal window not open")
+	ErrRevealClosed        = errors.New("aiquorum: reveal window closed")
+	ErrAlreadyRevealed     = errors.New("aiquorum: operator already revealed")
+	ErrCommitMismatch      = errors.New("aiquorum: reveal does not match commit")
+	ErrEmptyCommit         = errors.New("aiquorum: empty commit hash")
+	ErrEmptyOutputHash     = errors.New("aiquorum: empty output hash")
+	ErrSettleTooEarly      = errors.New("aiquorum: reveal window not closed")
 )
 
 // StateDB is the minimal slot-level state interface. Satisfied by the
@@ -508,10 +508,16 @@ type operatorRecord struct {
 //
 // To keep the keyspace simple we derive sibling slots by hashing the record key
 // with a discriminator, so each scalar gets a clean 32-byte word.
-func opMetaSlot(op common.Address) common.Hash  { return slotAddr(nsOperator, op) }
-func opSpecSlot(op common.Address) common.Hash  { return common.BytesToHash(crypto.Keccak256(nsOperator, op.Bytes(), []byte("spec"))) }
-func opEndpSlot(op common.Address) common.Hash  { return common.BytesToHash(crypto.Keccak256(nsOperator, op.Bytes(), []byte("endp"))) }
-func opStakeSlot(op common.Address) common.Hash { return common.BytesToHash(crypto.Keccak256(nsOperator, op.Bytes(), []byte("stake"))) }
+func opMetaSlot(op common.Address) common.Hash { return slotAddr(nsOperator, op) }
+func opSpecSlot(op common.Address) common.Hash {
+	return common.BytesToHash(crypto.Keccak256(nsOperator, op.Bytes(), []byte("spec")))
+}
+func opEndpSlot(op common.Address) common.Hash {
+	return common.BytesToHash(crypto.Keccak256(nsOperator, op.Bytes(), []byte("endp")))
+}
+func opStakeSlot(op common.Address) common.Hash {
+	return common.BytesToHash(crypto.Keccak256(nsOperator, op.Bytes(), []byte("stake")))
+}
 
 func packOpMeta(r operatorRecord) common.Hash {
 	var w [32]byte
@@ -770,27 +776,27 @@ func WithdrawStake(db StateDB, lg Ledger, operator common.Address, block uint64)
 // the requester controls (each bonded >= MinStake), N = draw size, T = threshold.
 // Forging the canonical hash needs >= T of the selected N to be cartel operators.
 //
-//	- NECESSARY CONDITION: c >= T. The selected set is drawn from the eligible
-//	  pool, which contains exactly c cartel operators; you cannot select more
-//	  cartel members than exist. If c < T no job_id — however ground out — can
-//	  reach a cartel quorum. This is an ABSOLUTE bound: forgery is impossible
-//	  below a bonded stake of T * MinStake, at any compute budget.
-//	- WHEN c >= T: a single offline keccak grind over promptHash finds a job_id
-//	  whose draw lands >= T cartel members with per-attempt probability
-//	  P = P(Hypergeometric(E, c, N) >= T); the attacker then submits ONCE, paying
-//	  N*RequestFeePerOperator. The fee does not multiply by offline tries — it is
-//	  the price of the one on-chain submission. So against a c >= T cartel the
-//	  economic deterrent is the stake (T*MinStake at risk of slashing/illiquidity),
-//	  not the fee.
-//	- The FEE bites MULTI-JOB strategies: if the attack needs k distinct on-chain
-//	  jobs (promptHash semantically constrained so it cannot be freely ground;
-//	  censorship by resubmission; varying N/T/timing), the on-chain cost is
-//	  k * N * RequestFeePerOperator — linear in both the per-request size and the
-//	  number of attempts.
-//	- The MARGIN keeps E strictly > N so the pool is never degenerate; it does not
-//	  shrink c, but it guarantees the draw samples a strictly larger independent
-//	  set, which is the precondition for (i) a well-distributed pool to dilute a
-//	  fixed cartel and (ii) the hypergeometric P above to be < 1.
+//   - NECESSARY CONDITION: c >= T. The selected set is drawn from the eligible
+//     pool, which contains exactly c cartel operators; you cannot select more
+//     cartel members than exist. If c < T no job_id — however ground out — can
+//     reach a cartel quorum. This is an ABSOLUTE bound: forgery is impossible
+//     below a bonded stake of T * MinStake, at any compute budget.
+//   - WHEN c >= T: a single offline keccak grind over promptHash finds a job_id
+//     whose draw lands >= T cartel members with per-attempt probability
+//     P = P(Hypergeometric(E, c, N) >= T); the attacker then submits ONCE, paying
+//     N*RequestFeePerOperator. The fee does not multiply by offline tries — it is
+//     the price of the one on-chain submission. So against a c >= T cartel the
+//     economic deterrent is the stake (T*MinStake at risk of slashing/illiquidity),
+//     not the fee.
+//   - The FEE bites MULTI-JOB strategies: if the attack needs k distinct on-chain
+//     jobs (promptHash semantically constrained so it cannot be freely ground;
+//     censorship by resubmission; varying N/T/timing), the on-chain cost is
+//     k * N * RequestFeePerOperator — linear in both the per-request size and the
+//     number of attempts.
+//   - The MARGIN keeps E strictly > N so the pool is never degenerate; it does not
+//     shrink c, but it guarantees the draw samples a strictly larger independent
+//     set, which is the precondition for (i) a well-distributed pool to dilute a
+//     fixed cartel and (ii) the hypergeometric P above to be < 1.
 //
 // Honest summary: the margin makes the pool non-degenerate, MinStake sets the
 // absolute T*MinStake forgery floor, and the fee prices repeated on-chain
@@ -936,7 +942,7 @@ func requiredMargin(n uint32) uint32 {
 func eligibleSet(db StateDB, modelSpecHash common.Hash) []common.Address {
 	total := modelCount(db, modelSpecHash)
 	eligible := make([]common.Address, 0, total)
-	for i := uint32(0); i < total; i++ {
+	for i := range total {
 		op := modelMember(db, modelSpecHash, i)
 		rec := readOperator(db, op)
 		if !rec.Exists || rec.Unbonding {
@@ -960,7 +966,7 @@ func drawFromEligible(eligible []common.Address, jobID common.Hash, n uint32) ([
 	if uint32(len(eligible)) < n {
 		return nil, ErrNotEnoughEligible
 	}
-	for i := uint32(0); i < n; i++ {
+	for i := range n {
 		span := uint64(len(eligible)) - uint64(i) // remaining choices
 		draw := new(uint256.Int).SetBytes(crypto.Keccak256(jobID.Bytes(), u32be(i)))
 		j := uint32(i) + uint32(new(uint256.Int).Mod(draw, uint256.NewInt(span)).Uint64())
@@ -1072,11 +1078,11 @@ func revealCount(db StateDB, jobID common.Hash) uint32 {
 
 // SettleResult is the outcome of Settle, returned for the ABI layer + tests.
 type SettleResult struct {
-	Status        uint8       // JobSettled or JobFailed
-	CanonicalHash common.Hash // winning output_hash (zero if Failed)
-	WinnerCount   uint32      // size of the winning group (0 if Failed)
-	Paid          *uint256.Int// total wei paid out as rewards (0 if Failed)
-	Slashed       *uint256.Int// total wei slashed from non-revealers
+	Status        uint8        // JobSettled or JobFailed
+	CanonicalHash common.Hash  // winning output_hash (zero if Failed)
+	WinnerCount   uint32       // size of the winning group (0 if Failed)
+	Paid          *uint256.Int // total wei paid out as rewards (0 if Failed)
+	Slashed       *uint256.Int // total wei slashed from non-revealers
 }
 
 // Settle finalizes a job after its reveal window closes. It tallies revealers by
@@ -1107,7 +1113,7 @@ func Settle(db StateDB, lg Ledger, jobID common.Hash, block uint64) (SettleResul
 	rc := revealCount(db, jobID)
 	revealers := make([]common.Address, rc)
 	hashes := make([]common.Hash, rc)
-	for i := uint32(0); i < rc; i++ {
+	for i := range rc {
 		op := common.BytesToAddress(db.GetState(ContractAddress, slotHashIdx(nsRevealList, jobID, i)).Bytes())
 		revealers[i] = op
 		hashes[i] = db.GetState(ContractAddress, slotHashAddr(nsReveal, jobID, op))
@@ -1134,7 +1140,7 @@ func Settle(db StateDB, lg Ledger, jobID common.Hash, block uint64) (SettleResul
 
 		// Winners = revealers whose hash == canonical.
 		winners := make([]common.Address, 0, winnerSize)
-		for i := uint32(0); i < rc; i++ {
+		for i := range rc {
 			if hashes[i] == canonical {
 				winners = append(winners, revealers[i])
 			}
@@ -1269,7 +1275,7 @@ func plurality(hashes []common.Hash) (common.Hash, uint32) {
 
 func bytesLess(a, b common.Hash) bool {
 	ab, bb := a.Bytes(), b.Bytes()
-	for i := 0; i < len(ab); i++ {
+	for i := range ab {
 		if ab[i] != bb[i] {
 			return ab[i] < bb[i]
 		}

@@ -1,17 +1,19 @@
 module github.com/hanzoai/chains/hanzo-evm
 
-go 1.26.5
+go 1.27.1
 
 require (
+	github.com/holiman/uint256 v1.3.2
+	github.com/luxfi/crypto v1.19.20
 	github.com/luxfi/evm v1.99.21
+	github.com/luxfi/geth v1.17.11
 	github.com/luxfi/log v1.4.3
 	github.com/luxfi/precompile v0.5.44
 	github.com/luxfi/sys v0.1.0
 	github.com/luxfi/version v1.0.1
 	github.com/luxfi/vm v1.2.3
+	github.com/stretchr/testify v1.11.1
 )
-
-require github.com/luxfi/rpc v1.1.0 // indirect
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
@@ -74,7 +76,6 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/holiman/billy v0.0.0-20250707135307-f2f9b9aae7db // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
-	github.com/holiman/uint256 v1.3.2
 	github.com/huin/goupnp v1.3.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/klauspost/compress v1.18.6 // indirect
@@ -94,13 +95,11 @@ require (
 	github.com/luxfi/constants v1.5.8 // indirect
 	github.com/luxfi/container v0.0.4 // indirect
 	github.com/luxfi/corona v0.7.6 // indirect
-	github.com/luxfi/crypto v1.19.20
 	github.com/luxfi/crypto/ipa v1.2.4 // indirect
 	github.com/luxfi/database v1.19.2 // indirect
 	github.com/luxfi/fhe v1.8.8 // indirect
 	github.com/luxfi/filesystem v0.0.1 // indirect
 	github.com/luxfi/formatting v1.0.1 // indirect
-	github.com/luxfi/geth v1.17.11
 	github.com/luxfi/go-bip39 v1.1.2 // indirect
 	github.com/luxfi/gpu v1.0.1 // indirect
 	github.com/luxfi/ids v1.2.15 // indirect
@@ -115,6 +114,7 @@ require (
 	github.com/luxfi/pq v1.0.3 // indirect
 	github.com/luxfi/proto v1.3.4 // indirect
 	github.com/luxfi/resource v0.0.1 // indirect
+	github.com/luxfi/rpc v1.1.0 // indirect
 	github.com/luxfi/runtime v1.1.1 // indirect
 	github.com/luxfi/sampler v1.1.0 // indirect
 	github.com/luxfi/threshold v1.9.9 // indirect
@@ -157,7 +157,6 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/status-im/keycard-go v0.3.3 // indirect
-	github.com/stretchr/testify v1.11.1
 	github.com/supranational/blst v0.3.16 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220614013038-64ee5596c38a // indirect
 	github.com/tinylib/msgp v1.6.3 // indirect
